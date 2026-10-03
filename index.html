@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>塔羅牌抽牌</title>
+  <style>
+    .tarot-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .tarot-cards {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      width: 100%;
+      overflow-x: auto;
+    }
+    .tarot-card {
+      text-align: center;
+      width: 18%;
+      min-width: 60px;
+    }
+    .tarot-card img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+    /* 逆位：用 CSS 把正位圖旋轉 180 度，不需要另外準備逆位圖片 */
+    .tarot-card img.reversed {
+      transform: rotate(180deg);
+    }
+    /* 圖片載入失敗時的替代方塊 */
+    .card-fallback {
+      aspect-ratio: 2 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #888;
+      border-radius: 6px;
+      background: #f2f2f2;
+      font-size: 14px;
+      padding: 4px;
+    }
+    .tarot-text {
+      margin-top: 5px;
+      font-size: 12px;
+    }
+    .draw-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #3366ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .draw-button:hover {
+      background-color: #264ed8;
+    }
+    .sample-image {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="tarot-container">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhocyOTtZrSGs38CwRKy2itUBKVsBZOhyuJNLObI3GNTqi4vfrsQSSfA2LMTIC5QfTUog0B1bRCqW97A_jAfVwr_0d8gduJE62jg5yIFQkE5T8dVxWWN3Cpnif_MrbP0WNlbpss1NCB6of3f57AS0F-En1JiwEwYVkM8iLbUlMO4Jzdiofq9oEpvjjr5vS6/s1024/image.jpg" alt="塔羅牌示意圖" class="sample-image">
+    <div id="tarot-display-area" class="tarot-cards"></div>
+    <button id="draw-button" class="draw-button" type="button">抽牌</button>
+  </div>
+
+  <script>
+    'use strict';
+
+    const TAROT_CARDS = [
+      "杖王", "杖后", "杖騎", "杖公主", "杖１", "杖２", "杖３", "杖４", "杖５", "杖６", "杖７", "杖８", "杖９", "杖10",
+      "劍王", "劍后", "劍騎", "劍公主", "劍１", "劍２", "劍３", "劍４", "劍５", "劍６", "劍７", "劍８", "劍９", "劍10",
+      "杯王", "杯后", "杯騎", "杯公主", "杯１", "杯２", "杯３", "杯４", "杯５", "杯６", "杯７", "杯８", "杯９", "杯10",
+      "錢王", "錢后", "錢騎", "錢公主", "錢１", "錢２", "錢３", "錢４", "錢５", "錢６", "錢７", "錢８", "錢９", "錢10",
+      "魔術師", "女教皇", "女皇", "皇帝", "教宗", "戀人", "戰車", "正義", "隱者", "命輪",
+      "力量", "吊人", "死神", "節制", "惡魔", "高塔", "星星", "月亮", "太陽", "審判", "世界", "愚者"
+    ];
+
+    const ORIENTATION_TEXT = ["正位", "逆位"];
+    const NUM_CARDS_TO_DRAW = 5;
+
+    // Rider-Waite 牌面放在 repo 內的 images/tarot/ 資料夾
+    // 檔名 0.jpg ~ 77.jpg，編號 = TAROT_CARDS 陣列的順序（0 是「杖王」，77 是「愚者」）
+    // 使用相對路徑，GitHub Pages（HTTPS）可正常載入
+    const IMAGE_BASE_URL = "images/tarot/";
+
+    function getImageUrl(cardIndex) {
+      return `${IMAGE_BASE_URL}${cardIndex}.jpg`;
+    }
+
+    function drawAndDisplayTarot() {
+      // Fisher-Yates 洗牌，抽取不重複的牌
+      const allCardIndices = Array.from({ length: TAROT_CARDS.length }, (_, k) => k);
+      for (let i = allCardIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allCardIndices[i], allCardIndices[j]] = [allCardIndices[j], allCardIndices[i]];
+      }
+      const selectedCardIndices = allCardIndices.slice(0, NUM_CARDS_TO_DRAW);
+
+      const displayArea = document.getElementById("tarot-display-area");
+      displayArea.innerHTML = "";
+
+      selectedCardIndices.forEach((cardIndex) => {
+        const isReversed = Math.random() < 0.5;
+        const cardName = TAROT_CARDS[cardIndex];
+        const orientationText = ORIENTATION_TEXT[isReversed ? 1 : 0];
+
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "tarot-card";
+
+        const img = document.createElement("img");
+        img.src = getImageUrl(cardIndex);
+        img.alt = cardName;
+        if (isReversed) img.classList.add("reversed");
+        img.onerror = function () {
+          const fallback = document.createElement("div");
+          fallback.className = "card-fallback";
+          fallback.textContent = cardName;
+          if (isReversed) fallback.style.transform = "rotate(180deg)";
+          this.replaceWith(fallback);
+        };
+        cardDiv.appendChild(img);
+
+        const textDiv = document.createElement("div");
+        textDiv.className = "tarot-text";
+        textDiv.textContent = `${cardName} (${orientationText})`;
+        cardDiv.appendChild(textDiv);
+
+        displayArea.appendChild(cardDiv);
+      });
+    }
+
+    document.getElementById("draw-button").addEventListener("click", drawAndDisplayTarot);
+  </script>
+</body>
+</html>
