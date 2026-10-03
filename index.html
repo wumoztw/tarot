@@ -56,12 +56,11 @@
       box-shadow: 0 6px 18px rgba(60,100,80,.22), 0 0 0 1px rgba(255,255,255,.8);
     }
     .back {
-      background:
-        radial-gradient(circle at 50% 50%, #fff 0 5%, transparent 6%),
-        radial-gradient(circle at 50% 50%, transparent 0 14%, rgba(255,255,255,.7) 14.5% 15.5%, transparent 16%),
-        linear-gradient(180deg, #9fcbe6, #bfe0c2);
+      background: linear-gradient(180deg, #9fcbe6, #bfe0c2);
       border: 6px solid #fff;
+      display: grid; place-items: center;
     }
+    .back svg { width: 62%; height: auto; display: block; opacity: .95; }
     .front { transform: rotateY(180deg); background: #fff; }
     .front img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .front img.reversed, .fallback.reversed { transform: rotate(180deg); }
@@ -108,7 +107,7 @@
     </div>
 
     <button id="draw-button" class="draw-button" type="button">抽牌</button>
-    <p class="foot">Rider-Waite 牌面（公有領域）</p>
+    <p class="foot">Rider-Waite 牌面（公有領域）・牌背字形 pona 取自 sitelen seli kiwen（OFL）</p>
   </main>
 
   <script>
@@ -126,6 +125,9 @@
     const NUM_CARDS_TO_DRAW = 5;
     const IMAGE_BASE_URL = "images/tarot/"; // 0.jpg ~ 77.jpg
     const FLIP_DELAY = 450;                 // 每張牌翻開的間隔（毫秒）
+
+    // 牌背：Toki Pona 象形字 pona（取自 sitelen seli kiwen 字型，SIL OFL 1.1，Kreative Software）
+    const PONA_SVG = '<svg viewBox="11 -535 703 371" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g transform="scale(1,-1)"><path fill="#fff" d="M576 435Q576 477 620 477Q654 477 654 453Q654 449 653.0 440.0Q652 431 645.5 407.5Q639 384 628.0 361.0Q617 338 593.0 307.5Q569 277 537 252Q530 246 480.5 227.0Q431 208 423 208Q416 208 390.0 206.0Q364 204 353 204Q318 204 286.0 214.0Q254 224 233.5 234.5Q213 245 207.0 245.0Q201 245 201 250Q201 254 182.0 273.0Q163 292 158 292Q154 292 132.5 323.0Q111 354 111 360Q111 364 106.0 369.5Q101 375 97 389Q94 399 82.5 426.0Q71 453 71 460Q71 464 78.0 479.5Q85 495 92 495Q95 495 100 489Q103 486 105.0 487.0Q107 488 111.0 490.0Q115 492 118 492Q133 492 138 462Q140 447 157.0 411.5Q174 376 187 358Q206 332 223.5 319.0Q241 306 294 280Q326 265 367 265Q448 265 506 311Q530 329 539 335Q546 340 555.5 365.0Q565 390 570.5 411.5Q576 433 576 435Z"/></g></svg>';
 
     const button = document.getElementById("draw-button");
     const displayArea = document.getElementById("tarot-display-area");
@@ -152,6 +154,7 @@
 
       const back = document.createElement("div");
       back.className = "face back";
+      back.innerHTML = PONA_SVG;
 
       const front = document.createElement("div");
       front.className = "face front";
