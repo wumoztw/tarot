@@ -40,10 +40,11 @@
     .divider { margin: 20px auto 32px; width: 48px; height: 2px; border-radius: 2px; background: var(--grass); }
 
     .spread {
-      display: flex; flex-wrap: wrap; justify-content: center;
-      gap: 18px 14px; min-height: 260px; perspective: 1200px;
+      display: flex; flex-wrap: nowrap; justify-content: center; align-items: flex-start;
+      gap: 14px; min-height: 260px; perspective: 1200px;
     }
-    .slot { width: clamp(88px, 17vw, 150px); }
+    /* 五張牌永遠排成一列：每張平均分寬度，最寬 150px */
+    .slot { flex: 1 1 0; min-width: 0; max-width: 150px; }
     .card { position: relative; aspect-ratio: 3 / 5; }
     .card-inner {
       position: absolute; inset: 0; transform-style: preserve-3d;
@@ -90,6 +91,19 @@
     .draw-button:hover:not(:disabled) { transform: translateY(-2px); background: #437d40; box-shadow: 0 10px 22px rgba(79,138,75,.35); }
     .draw-button:disabled { opacity: .5; cursor: default; }
     .foot { margin-top: 40px; font-size: 12px; color: var(--muted); }
+
+    /* 手機：縮小間距、邊框與文字，讓五張牌剛好排成一列 */
+    @media (max-width: 600px) {
+      .wrap { padding: 36px 8px 110px; }
+      .spread { gap: 6px; min-height: 0; }
+      .face { border-radius: 5px; }
+      .back { border-width: 3px; }
+      .label { margin-top: 6px; min-height: 36px; }
+      .label .name { font-size: 12px; letter-spacing: 0; }
+      .label .ori { font-size: 10px; padding: 0 6px; }
+      .fallback { font-size: 12px; }
+      .hint { padding: 50px 0; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .card-inner, .label { transition: none; }
