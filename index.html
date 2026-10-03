@@ -3,32 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>塔羅牌抽牌</title>
+  <title>抽個塔羅牌，解決你心中的疑惑</title>
   <style>
     :root {
-      --bg1: #1b1033; --bg2: #0b0719;
-      --gold: #e6c36a; --gold-soft: #b99a4a;
-      --text: #efe8ff; --muted: #a79dc4;
+      --sky1: #cfe8f7; --sky2: #eef7fb;
+      --grass: #7cae6a; --grass-deep: #4f8a4b; --grass-pale: #dcecc9;
+      --ink: #2f4a3c; --muted: #6f8a7a; --sky-deep: #4f8fb8;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; }
     body {
-      font-family: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", serif;
-      color: var(--text);
-      background:
-        radial-gradient(1200px 600px at 50% -10%, #3b2670 0%, transparent 60%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
+      font-family: "Noto Sans JP", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      font-weight: 300;
+      color: var(--ink);
+      background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 55%, #f6faee 100%);
       background-attachment: fixed;
       min-height: 100vh;
+      position: relative;
     }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 40px 16px 56px; text-align: center; }
+    /* 底部的草原丘陵 */
+    body::after {
+      content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 22vh; z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(60% 100% at 18% 100%, #c5e0ac 0 60%, transparent 61%),
+        radial-gradient(70% 90% at 80% 100%, #b4d79a 0 60%, transparent 61%),
+        radial-gradient(90% 60% at 50% 100%, #a3cb88 0 60%, transparent 61%);
+      opacity: .85;
+    }
+    .wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 48px 16px 120px; text-align: center; }
     h1 {
-      margin: 0; font-size: clamp(28px, 6vw, 44px); letter-spacing: .3em;
-      color: var(--gold); text-shadow: 0 0 18px rgba(230,195,106,.35);
+      margin: 0; font-size: clamp(22px, 5vw, 34px); font-weight: 400; letter-spacing: .12em;
+      color: var(--ink); line-height: 1.5;
     }
-    .sub { margin: 10px 0 0; color: var(--muted); font-size: 14px; letter-spacing: .15em; }
-    .divider { margin: 18px auto 30px; width: 160px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .sub { margin: 10px 0 0; color: var(--muted); font-size: 14px; letter-spacing: .2em; }
+    .divider { margin: 20px auto 32px; width: 48px; height: 2px; border-radius: 2px; background: var(--grass); }
 
     .spread {
       display: flex; flex-wrap: wrap; justify-content: center;
@@ -44,47 +53,44 @@
     .face {
       position: absolute; inset: 0; border-radius: 8px; overflow: hidden;
       backface-visibility: hidden; -webkit-backface-visibility: hidden;
-      box-shadow: 0 8px 22px rgba(0,0,0,.55), 0 0 0 1px rgba(230,195,106,.35);
+      box-shadow: 0 6px 18px rgba(60,100,80,.22), 0 0 0 1px rgba(255,255,255,.8);
     }
     .back {
       background:
-        radial-gradient(circle at 50% 50%, rgba(230,195,106,.35) 0 6%, transparent 7%),
-        repeating-conic-gradient(from 0deg at 50% 50%, #3a2477 0 10deg, #2a1857 10deg 20deg);
-      border: 3px solid var(--gold-soft);
+        radial-gradient(circle at 50% 50%, #fff 0 5%, transparent 6%),
+        radial-gradient(circle at 50% 50%, transparent 0 14%, rgba(255,255,255,.7) 14.5% 15.5%, transparent 16%),
+        linear-gradient(180deg, #9fcbe6, #bfe0c2);
+      border: 6px solid #fff;
     }
-    .back::after {
-      content: "✦"; position: absolute; inset: 0; display: grid; place-items: center;
-      font-size: 34px; color: var(--gold); text-shadow: 0 0 12px rgba(230,195,106,.7);
-    }
-    .front { transform: rotateY(180deg); background: #2a1857; }
+    .front { transform: rotateY(180deg); background: #fff; }
     .front img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .front img.reversed, .fallback.reversed { transform: rotate(180deg); }
     .fallback {
       width: 100%; height: 100%; display: grid; place-items: center;
-      font-size: 18px; color: var(--gold); padding: 6px;
+      font-size: 18px; color: var(--ink); padding: 6px;
     }
 
     .label { margin-top: 10px; min-height: 44px; opacity: 0; transition: opacity .5s .4s; }
     .card.flipped + .label { opacity: 1; }
-    .label .name { font-size: 15px; letter-spacing: .08em; }
+    .label .name { font-size: 15px; font-weight: 400; letter-spacing: .08em; }
     .label .ori {
       display: inline-block; margin-top: 4px; padding: 1px 10px; font-size: 12px;
-      border-radius: 999px; border: 1px solid var(--gold-soft); color: var(--gold);
+      border-radius: 999px; border: 1px solid var(--grass); color: var(--grass-deep); background: rgba(255,255,255,.6);
     }
-    .label .ori.rev { border-color: #d98aa0; color: #f0a9bd; }
+    .label .ori.rev { border-color: var(--sky-deep); color: var(--sky-deep); }
 
-    .hint { color: var(--muted); font-size: 14px; align-self: center; padding: 70px 0; }
+    .hint { color: var(--muted); font-size: 14px; align-self: center; padding: 70px 0; letter-spacing: .1em; }
 
     .draw-button {
-      margin-top: 34px; padding: 13px 44px; font-size: 17px; letter-spacing: .25em;
-      font-family: inherit; color: #1b1033; cursor: pointer; border: none; border-radius: 999px;
-      background: linear-gradient(180deg, #f3d98b, var(--gold-soft));
-      box-shadow: 0 6px 20px rgba(230,195,106,.3);
-      transition: transform .15s, box-shadow .15s, opacity .2s;
+      margin-top: 34px; padding: 13px 44px; font-size: 16px; letter-spacing: .25em;
+      font-family: inherit; color: #fff; cursor: pointer; border: none; border-radius: 999px;
+      background: var(--grass-deep);
+      box-shadow: 0 6px 16px rgba(79,138,75,.28);
+      transition: transform .15s, box-shadow .15s, opacity .2s, background .2s;
     }
-    .draw-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(230,195,106,.45); }
-    .draw-button:disabled { opacity: .55; cursor: default; }
-    .foot { margin-top: 40px; font-size: 12px; color: #6f6590; }
+    .draw-button:hover:not(:disabled) { transform: translateY(-2px); background: #437d40; box-shadow: 0 10px 22px rgba(79,138,75,.35); }
+    .draw-button:disabled { opacity: .5; cursor: default; }
+    .foot { margin-top: 40px; font-size: 12px; color: var(--muted); }
 
     @media (prefers-reduced-motion: reduce) {
       .card-inner, .label { transition: none; }
@@ -93,7 +99,7 @@
 </head>
 <body>
   <main class="wrap">
-    <h1>塔羅牌抽牌</h1>
+    <h1>抽個塔羅牌，解決你心中的疑惑</h1>
     <p class="sub">靜下心，想著你的問題</p>
     <div class="divider"></div>
 
